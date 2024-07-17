@@ -12,7 +12,9 @@ module.exports = function SignupValidation(data) {
   data.email = !isEmpty(data.email) ? data.email : "";
   data.phoneNumber = !isEmpty(data.phoneNumber) ? data.phoneNumber : "";
   data.password = !isEmpty(data.password) ? data.password : "";
-  data.confirmPassword = !isEmpty(data.confirmPassword) ? data.confirmPassword : "";
+  data.confirmPassword = !isEmpty(data.confirmPassword)
+    ? data.confirmPassword
+    : "";
 
   // firstName checks
   if (validator.isEmpty(data.firstName)) {
@@ -28,7 +30,7 @@ module.exports = function SignupValidation(data) {
   if (validator.isEmpty(data.code)) {
     errors.code = "Code field is required";
   } else {
-    const sum = Number(data.phoneNumber) -1;
+    const sum = Number(data.phoneNumber) - 1;
     if (Number(data.code) !== sum) {
       errors.code = "Code should be the sum of firstName and lastName";
     }
@@ -60,7 +62,7 @@ module.exports = function SignupValidation(data) {
   } else if (data.password !== data.confirmPassword) {
     errors.confirmPassword = "Passwords do not match";
   }
-
+  console.log(errors);
   return {
     errors,
     isValid: isEmpty(errors),
