@@ -15,34 +15,24 @@ export default function WeatherForecast(props) {
   }, [props.coords]);
 
   function handleResponse(response) {
-    setForecastData(response.data.daily);
+    console.log(response);
+    setForecastData(response.data);
     setLoaded(true);
   }
 
   // Get weather forecast for next days
   function getWeatherForecast() {
-    const apiKey = "5a6903eab650be6a07243d3bc71995a1";
-    const apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${props.coords.lat}&lon=${props.coords.lon}&appid=${apiKey}&units=metric`;
+    const apiKey = "af572b83d0ddfa6de9d54d44ef972148";
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${props.coords.lat}&lon=${props.coords.lon}&appid=${apiKey}&units=metric`;
     axios.get(apiUrl).then(handleResponse);
   }
 
   if (loaded) {
     return (
       <div className="WeatherForecast row">
-        {forecastData.map(function (dailyForecast, idx) {
-          if (idx < 5) {
-            return (
-              <div
-                className="col-6 col-md-4 col-lg-2 WeatherForecast-elem"
-                key={idx}
-              >
-                <WeatherForecastDay data={dailyForecast} />
-              </div>
-            );
-          } else {
-            return null;
-          }
-        })}
+        <div className="col-6 col-md-4 col-lg-2 WeatherForecast-elem">
+          <WeatherForecastDay data={forecastData} />
+        </div>
       </div>
     );
   } else {

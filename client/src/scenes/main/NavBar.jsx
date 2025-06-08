@@ -17,23 +17,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import Container from "@mui/material/Container";
 import { logout } from "../../store/auth";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import Cookies from "js-cookie";
-
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 const drawerWidth = 240;
 
 const mainNavItems = [
   {
     title: "Home",
     link: "/",
-  },
-  {
-    title: "Login",
-    link: "/login",
-  },
-  {
-    title: "Register",
-    link: "/register",
   },
   {
     title: "do's & dont's",
@@ -47,32 +40,28 @@ const mainNavItems = [
     title: "Donate",
     link: "/Donate",
   },
-  {
-    title: "Report",
-    link: "/Report",
-  },
 ];
 
 const reliefNavItems = [
   {
-    title: 'All Relief Centers',
-    link: 'volunteer/relief-center'
+    title: "All Relief Centers",
+    link: "agency/relief-center",
   },
   {
-    title: 'My Relief Center',
-    link: 'volunteer/my-relief-center'
-  }
+    title: "My Relief Center",
+    link: "agency/my-relief-center",
+  },
 ];
 
 const collectionNavItems = [
   {
-    title: 'All Collection Centers',
-    link: 'volunteer/collection-center'
+    title: "All Collection Centers",
+    link: "agency/collection-center",
   },
   {
-    title: 'My Collection Center',
-    link: 'volunteer/my-collection-center'
-  }
+    title: "My Collection Center",
+    link: "agency/my-collection-center",
+  },
 ];
 
 function DrawerAppBar(props) {
@@ -80,20 +69,51 @@ function DrawerAppBar(props) {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const role = useSelector((state) => state.auth.role);
-
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const agencykey = queryParams.get("key");
+  console.log("navbar.jsx:", agencykey);
+  const SECRET_KEY = process.env.AGENCY_KEY || "india1";
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
-    Cookies.remove('Token');
+    navigate(`/agency?key=${agencykey}`);
+    Cookies.remove("Token");
   };
+
+  useEffect(() => {
+    const isAgencyPath = location.pathname.startsWith("/agency");
+
+    // If user is on a public route, and is incorrectly showing as agency -> reset
+    if (
+      !isAgencyPath &&
+      isAuthenticated &&
+      (role === "relief" || role === "collection")
+    ) {
+      console.log("Resetting stale agency session");
+      dispatch(logout());
+      Cookies.remove("Token");
+    }
+  }, [location.pathname, isAuthenticated, role]);
 
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-
+  const hideOnRoutes = ["/agency", "/agency/register"];
+  if (
+    hideOnRoutes.includes(location.pathname) &&
+    location.search.includes(`key=${agencykey}`)
+  ) {
+    return null;
+  }
   const navItems = {
-    'default': mainNavItems,
-    'relief': reliefNavItems,
-    'collection': collectionNavItems
+    default: mainNavItems,
+    relief: reliefNavItems.map((item) => ({
+      ...item,
+      link: `${item.link}?key=${agencykey}`,
+    })),
+    collection: collectionNavItems.map((item) => ({
+      ...item,
+      link: `${item.link}?key=${agencykey}`,
+    })),
   };
 
   let currentNavItems = mainNavItems;
@@ -110,7 +130,7 @@ function DrawerAppBar(props) {
     textDecoration: "none",
     backgroundColor: "skyblue",
     borderRadius: ".5rem",
-    padding: '.1rem',
+    padding: ".1rem",
     textAlign: "center",
   };
 
@@ -218,10 +238,11 @@ function DrawerAppBar(props) {
                 <NavLink
                   key={val}
                   to={item.link}
-                  style={({ isActive }) =>
-                    isActive
-                      ? { ...navLinkStyles, ...navLinkHoverStyles } // Apply inline styles
-                      : navLinkStyles // Apply inline styles
+                  style={
+                    ({ isActive }) =>
+                      isActive
+                        ? { ...navLinkStyles, ...navLinkHoverStyles } // Apply inline styles
+                        : navLinkStyles // Apply inline styles
                   }
                 >
                   <Button key={val} sx={{ color: "#fff" }}>
@@ -235,7 +256,9 @@ function DrawerAppBar(props) {
                   startIcon={<LogoutIcon />}
                   sx={{
                     ...signInButtonStyles, // Apply inline styles
-                    backgroundColor: 'white', color: '#fff', ml: 4
+                    backgroundColor: "white",
+                    color: "#fff",
+                    ml: 4,
                   }}
                 >
                   Logout
@@ -247,7 +270,9 @@ function DrawerAppBar(props) {
       </AppBar>
       <Box component="nav">
         <Drawer
-          container={window !== undefined ? () => window().document.body : undefined}
+          container={
+            window !== undefined ? () => window().document.body : undefined
+          }
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}

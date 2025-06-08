@@ -1,7 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
-import { FcApproval,FcAdvertising,FcRightUp,FcRightDown,FcOk } from "react-icons/fc";
-import {WiFlood ,WiSleet } from "react-icons/wi";
+import {
+  FcApproval,
+  FcAdvertising,
+  FcRightUp,
+  FcRightDown,
+  FcOk,
+} from "react-icons/fc";
+import { WiFlood, WiSleet } from "react-icons/wi";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -17,8 +23,8 @@ export default function Weather(props) {
   const [weatherData, setWeatherData] = useState({ loaded: false });
   const [city, setCity] = useState(props.defaultCity);
 
-  const apiKey = "5a6903eab650be6a07243d3bc71995a1";
- 
+  const apiKey = "af572b83d0ddfa6de9d54d44ef972148";
+
   // Set weather data fetched from API call
   function getWeatherData(response) {
     setWeatherData({
@@ -92,19 +98,23 @@ export default function Weather(props) {
 
         <div class="collapse" id="collapseExample">
           <div class="card card-body">
-            Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+            Some placeholder content for the collapse component. This panel is
+            hidden by default but revealed when the user activates the relevant
+            trigger.
           </div>
         </div>
 
         <div class="alert card green lighten-4 green-text text-darken-4">
           <div class="card-content">
-            <p> <FcOk/><span>Safe     </span> There is no alerts to show</p>
+            <p>
+              {" "}
+              <FcOk />
+              <span>Safe </span> There is no alerts to show
+            </p>
           </div>
         </div>
 
-
-
-  {/* <div class="alert card red lighten-4 red-text text-darken-4">
+        {/* <div class="alert card red lighten-4 red-text text-darken-4">
 		<div class="card-content">
 			<p><FcAdvertising /><strong>Warning</strong> </p><p> Thodupuzha, Edukki : <b>Current Water Level :</b>38.135 <FcRightDown></FcRightDown> <b>Danger Water Level : </b>37.5 </p>
 		</div>
@@ -120,7 +130,6 @@ export default function Weather(props) {
 			<p><FcAdvertising /><strong>Warning</strong> </p><p> Manimala, Edukki : <b>Current Water Level :</b>79.5 <FcRightDown></FcRightDown> <b>Danger Water Level : </b>78.4 </p>
 		</div>
 	</div> */}
-   
       </div>
     );
   } else {

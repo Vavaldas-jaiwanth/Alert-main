@@ -1,11 +1,20 @@
 import React from "react";
 import { Container, Box } from "@mui/system";
 import Typography from "@mui/material/Typography";
-import { Card, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import {
+  Card,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Cookie from "js-cookie";
@@ -16,9 +25,14 @@ import {
   setReliefCenter,
 } from "../../store/auth";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import useAgencyNavigate from "../../hooks/useAgencyNavigate";
 
 function Login() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const agencykey = queryParams.get("key");
+  const navigate = useAgencyNavigate();
   const dispatch = useDispatch();
 
   const [formData, setFormData] = React.useState({
@@ -69,13 +83,10 @@ function Login() {
 
           if (res.data.role === "reliefCenter") {
             dispatch(setReliefCenter(res.data.userID));
-            navigate("/volunteer/relief-center");
-          } else if (res.data.role === "admin") {
-            dispatch(setAdmin(res.data.userID));
-            navigate("/admin");
+            navigate("/agency/relief-center");
           } else {
             dispatch(setCollectionCenter(res.data.userID));
-            navigate("/volunteer/collection-center");
+            navigate("/agency/collection-center");
           }
         })
         .catch((err) => {
@@ -108,10 +119,10 @@ function Login() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              minWidth: '20rem',
+              minWidth: "20rem",
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 400, color: 'white' }}>
+            <Typography variant="h6" sx={{ fontWeight: 400, color: "white" }}>
               Login
             </Typography>
 
@@ -157,7 +168,12 @@ function Login() {
                           type="submit"
                           fullWidth
                           variant="contained"
-                          sx={{ mt: 3, mb: 2, backgroundColor: 'black', color: 'white' }}
+                          sx={{
+                            mt: 3,
+                            mb: 2,
+                            backgroundColor: "black",
+                            color: "white",
+                          }}
                         >
                           Login
                         </Button>
@@ -167,8 +183,14 @@ function Login() {
                       <TableCell>
                         <Grid container justifyContent="flex-end">
                           <Grid item>
-                            <RouterLink to="/register">
-                              <Link component="span" variant="caption" sx={{ color: 'white' }}>
+                            <RouterLink
+                              to={`/agency/register?key=${agencykey}`}
+                            >
+                              <Link
+                                component="span"
+                                variant="caption"
+                                sx={{ color: "white" }}
+                              >
                                 {"Create a New Account"}
                               </Link>
                             </RouterLink>

@@ -1,25 +1,20 @@
 import WeatherIcon from "./WeatherIcon";
-
 import "../css/WeatherForecastDay.css";
 
 export default function WeatherForecastDay(props) {
-  function maxTemp() {
-    let maxTemp = Math.round(props.data.temp.max);
-    return `${maxTemp}°`;
+  function temperature() {
+    let temp = Math.round(props.data.main.temp);
+    return `${temp}°`;
   }
 
-  function minTemp() {
-    let minTemp = Math.round(props.data.temp.min);
-    return `${minTemp}°`;
+  function feelsLike() {
+    return `Feels like: ${Math.round(props.data.main.feels_like)}°`;
   }
 
   function day() {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
     let date = new Date(props.data.dt * 1000);
-    let day = date.getDay();
-
-    return days[day];
+    return days[date.getDay()];
   }
 
   return (
@@ -29,8 +24,8 @@ export default function WeatherForecastDay(props) {
         <WeatherIcon code={props.data.weather[0].icon} size={40} />
       </div>
       <div className="WeatherForecast-temperature">
-        <span>{maxTemp()} </span>
-        <span>{minTemp()}</span>
+        <span>{temperature()}</span>
+        <div>{feelsLike()}</div>
       </div>
     </div>
   );
