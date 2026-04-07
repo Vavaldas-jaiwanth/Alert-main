@@ -68,8 +68,23 @@ function DrawerAppBar(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const role = useSelector((state) => state.auth.role);
   const location = useLocation();
+  const getRoleFromPath = () => {
+    if (
+      location.pathname.includes("/relief-center") ||
+      location.pathname.includes("/my-relief-center")
+    )
+      return "relief";
+    if (
+      location.pathname.includes("/collection-center") ||
+      location.pathname.includes("/my-collection-center")
+    )
+      return "collection";
+    return null;
+  };
+
+  const role = getRoleFromPath();
+
   const queryParams = new URLSearchParams(location.search);
   const agencykey = queryParams.get("key");
   console.log("navbar.jsx:", agencykey);
@@ -118,8 +133,8 @@ function DrawerAppBar(props) {
 
   let currentNavItems = mainNavItems;
 
-  if (isAuthenticated) {
-    currentNavItems = navItems[role] || [];
+  if (isAuthenticated && role) {
+    currentNavItems = navItems[role] || navItems.default;
   }
 
   const handleDrawerToggle = () => {

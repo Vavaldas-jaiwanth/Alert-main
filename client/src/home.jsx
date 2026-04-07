@@ -2,45 +2,61 @@ import React, { useState, useRef } from "react";
 import MapComponents from "./components/MapComponents/MapComponents";
 import Weather from "./scenes/js/Weather";
 import FloodPredict from "./scenes/js/App";
+import { Box, Grid, Fab, Tooltip, Typography, Card } from "@mui/material";
+import WarningIcon from "@mui/icons-material/Warning";
 import "./Mapweather.css";
+
 function MapAndWeather() {
   const [isSOSClicked, setIsSOSClicked] = useState(false);
+  const mapComponentsRef = useRef();
 
   const handleSOS = () => {
     setIsSOSClicked(true);
-    // Call the callback function in MapComponents
-    if (mapComponentsRef.current && mapComponentsRef.current.handleSOSClick) {
+    if (mapComponentsRef.current?.handleSOSClick) {
       mapComponentsRef.current.handleSOSClick();
     }
   };
 
-  const mapComponentsRef = useRef();
-
   return (
-    <>
-      {/* SOS Button with 3D effect */}
-      <div className="text-center mt-1 mb-1">
-        <button
-          className="btn btn-3d btn-danger"
-          style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+    <Box sx={{ p: 3, position: "relative" }}>
+      {/* SOS Floating Button */}
+      <Tooltip title="Send SOS Alert" placement="left">
+        <Fab
+          color="error"
           onClick={handleSOS}
+          sx={{
+            position: "fixed",
+            top: "100px",
+            right: "40px",
+            width: 80,
+            height: 80,
+            boxShadow: "0 5px 15px rgba(255,0,0,0.4)",
+            zIndex: 1000,
+          }}
         >
-          SOS
-        </button>
-      </div>
+          <WarningIcon fontSize="large" />
+        </Fab>
+      </Tooltip>
 
-      {/* Map and Flood Predictor side by side */}
-      <div className="container-fluid mt-3">
-        <div className="row">
-          <div className="col-lg-6 col-md-12">
+      {/* Page Heading */}
+      <Typography variant="h4" align="center" fontWeight={600} gutterBottom>
+        Weather & Map Dashboard
+      </Typography>
+
+      {/* Content */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Card elevation={4} sx={{ p: 2 }}>
             <FloodPredict />
-          </div>
-          <div className="col-lg-6 col-md-12">
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card elevation={4} sx={{ p: 2 }}>
             <MapComponents ref={mapComponentsRef} isSOSClicked={isSOSClicked} />
-          </div>
-        </div>
-      </div>
-    </>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 

@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Container, Box, Grid, MenuItem } from "@mui/material";
-import Typography from "@mui/material/Typography";
-import { Card } from "@mui/material";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Container,
+  Box,
+  Grid,
+  Card,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+} from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -13,8 +18,8 @@ function Register() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const agencykey = queryParams.get("key");
+
   const [formData, setFormData] = useState(() => {
-    // Check if there's any saved form data in local storage and use it as initial state
     const savedFormData = localStorage.getItem("registrationFormData");
     return savedFormData
       ? JSON.parse(savedFormData)
@@ -34,59 +39,36 @@ function Register() {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateFormData = (data) => {
     const errors = {};
-
-    if (!data.firstName) {
-      errors.firstName = "firstName is required";
-    }
-
-    if (!data.lastName) {
-      errors.lastName = "lastName is required";
-    }
-
-    if (!data.code) {
-      errors.code = "Code is required";
-    } else {
-      const sum = Number(data.phoneNumber) - 1;
-      if (Number(data.code) !== sum) {
-        errors.code = "error please enter the correct code";
-      }
-    }
-
-    if (!data.email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-      errors.email = "Email is invalid";
-    }
-
-    if (!data.phoneNumber) {
-      errors.phoneNumber = "Phone Number is required";
-    }
-
-    if (!data.password) {
-      errors.password = "Password is required";
-    }
-
-    if (!data.confirmPassword) {
+    if (!data.firstName) errors.firstName = "First Name is required";
+    if (!data.lastName) errors.lastName = "Last Name is required";
+    if (!data.email) errors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(data.email)) errors.email = "Invalid email";
+    if (!data.phoneNumber) errors.phoneNumber = "Phone Number is required";
+    if (!data.password) errors.password = "Password is required";
+    if (!data.confirmPassword)
       errors.confirmPassword = "Confirm Password is required";
-    } else if (data.password !== data.confirmPassword) {
+    else if (data.password !== data.confirmPassword)
       errors.confirmPassword = "Passwords do not match";
+    if (!data.code) errors.code = "Code is required";
+    else {
+      const expected = Number(data.phoneNumber) - 1;
+      if (Number(data.code) !== expected)
+        errors.code = "Please enter the correct code";
     }
-
     return errors;
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const errors = validateFormData(formData);
     setFormErrors(errors);
 
     if (Object.keys(errors).length === 0) {
-      console.log(formData);
       axios
         .post("/user/signup", formData)
         .then((res) => {
@@ -94,45 +76,48 @@ function Register() {
           navigate(`/agency?key=${agencykey}`);
         })
         .catch((err) => {
-          console.log("post");
-          toast.error(err.response.data.message);
+          toast.error(err?.response?.data?.message || "Registration failed");
         });
     }
   };
+
   return (
-    <Container>
-      <Box>
-        <Card>
-          <Typography variant="h6" color="primary">
-            Register
+    <Container maxWidth="sm">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <Card elevation={4} sx={{ p: 4, width: "100%" }}>
+          <Typography variant="h5" color="primary" align="center" gutterBottom>
+            Create Your Account
           </Typography>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="FirstName"
+                  label="First Name"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
                   error={!!formErrors.firstName}
                   helperText={formErrors.firstName}
                   fullWidth
-                  size="small"
                 />
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="LastName"
+                  label="Last Name"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
                   error={!!formErrors.lastName}
                   helperText={formErrors.lastName}
                   fullWidth
-                  size="small"
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 <TextField
                   label="Email"
                   name="email"
@@ -141,10 +126,9 @@ function Register() {
                   error={!!formErrors.email}
                   helperText={formErrors.email}
                   fullWidth
-                  size="small"
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 <TextField
                   label="Phone Number"
                   name="phoneNumber"
@@ -153,7 +137,6 @@ function Register() {
                   error={!!formErrors.phoneNumber}
                   helperText={formErrors.phoneNumber}
                   fullWidth
-                  size="small"
                 />
               </Grid>
               <Grid item xs={6}>
@@ -166,7 +149,6 @@ function Register() {
                   error={!!formErrors.password}
                   helperText={formErrors.password}
                   fullWidth
-                  size="small"
                 />
               </Grid>
               <Grid item xs={6}>
@@ -179,7 +161,6 @@ function Register() {
                   error={!!formErrors.confirmPassword}
                   helperText={formErrors.confirmPassword}
                   fullWidth
-                  size="small"
                 />
               </Grid>
               <Grid item xs={6}>
@@ -191,7 +172,6 @@ function Register() {
                   error={!!formErrors.code}
                   helperText={formErrors.code}
                   fullWidth
-                  size="small"
                 />
               </Grid>
               <Grid item xs={6}>
@@ -202,7 +182,6 @@ function Register() {
                   value={formData.role}
                   onChange={handleInputChange}
                   fullWidth
-                  size="small"
                 >
                   <MenuItem value="reliefCenter">Relief Center</MenuItem>
                   <MenuItem value="collectionCenter">
@@ -211,9 +190,16 @@ function Register() {
                 </TextField>
               </Grid>
             </Grid>
-            <Button type="submit" fullWidth variant="contained">
-              Create Account
-            </Button>
+            <Box mt={4}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
+                Create Account
+              </Button>
+            </Box>
           </form>
         </Card>
       </Box>

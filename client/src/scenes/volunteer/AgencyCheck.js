@@ -15,7 +15,11 @@ const AgencyCheck = () => {
     const authorized =
       localStorage.getItem("agency_auth") === "true" &&
       keyFromQuery === expectedKey;
-
+    console.log({
+      keyFromQuery,
+      expectedKey,
+      localStorage: localStorage.getItem("agency_auth"),
+    });
     if (keyFromQuery === expectedKey) {
       localStorage.setItem("agency_auth", "true");
       setIsAuthorized(true);
@@ -29,7 +33,7 @@ const AgencyCheck = () => {
   }, [keyFromQuery, expectedKey]);
 
   if (!checked) return null; // Don't render anything until check completes
-
+  console.log(isAuthorized);
   if (!isAuthorized) {
     return <Navigate to="/" replace />;
   }

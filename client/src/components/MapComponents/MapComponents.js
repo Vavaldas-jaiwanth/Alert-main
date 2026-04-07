@@ -149,8 +149,8 @@ const MapComponent = forwardRef((props, ref) => {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            const latitude = 13.2172;
-            const longitude = 79.1003;
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
             console.log(position);
             if (map) {
               map.setView([latitude, longitude], 15);
@@ -203,14 +203,12 @@ const MapComponent = forwardRef((props, ref) => {
       const longitude = position.coords.longitude;
       try {
         const response = await fetch("/notification/addNotification", {
-          // Replace '/api/sos' with your SOS endpoint
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ latitude, longitude }),
         });
-        console.log(response);
         if (response.ok) {
           console.log("SOS signal sent successfully");
         } else {
@@ -229,20 +227,15 @@ const MapComponent = forwardRef((props, ref) => {
     const confirmAction = window.confirm(
       "Are you sure you want to send an SOS alert?\n\n" +
         "This action will notify emergency services and nearby contacts of your location.\n\n" +
-        "If you are in danger, you can click this.\n\n" +
-        "Please use this button only in real emergencies. Misuse of this feature for fun or any non-emergency situations can lead to serious consequences, including legal actions.\n\n" +
-        "Thank you for using this feature responsibly."
+        "Please use this button only in real emergencies."
     );
-    if (!confirmAction) {
-      return;
-    }
+    if (!confirmAction) return;
 
     const currentTime = new Date().getTime();
-    if (currentTime - lastSOSClickTime < SOS_CLICK_INTERVAL) {
-      alert("You can only send an SOS alert once every minute.");
-      return;
-    }
-
+    // if (currentTime - lastSOSClickTime < SOS_CLICK_INTERVAL) {
+    //   alert("You can only send an SOS alert once every minute.");
+    //   return;
+    // }
     lastSOSClickTime = currentTime;
     try {
       if (map) {

@@ -1,163 +1,138 @@
-import React, { useEffect } from "react";
-import { Box, Container } from "@mui/system";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Modal,
+  Fade,
+  Backdrop,
+  Card,
+  CardContent,
+  Divider,
+  Stack,
+  Grid,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Fade, Grid, Modal, Stack, Typography } from "@mui/material";
-import Backdrop from "@mui/material/Backdrop";
 import axios from "axios";
-import uuid from "react-uuid";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: { xs: "90%", sm: 500, md: 600 },
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: "1rem",
+  outline: "none",
+};
 
 function CollectionCenter() {
-  // Modal style
-  const style = {
-    position: "absolute",
-    top: "30%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 700,
-    bgcolor: "#fff",
-    boxShadow: 24,
-    pt: 2,
-    p: 4,
-  };
+  const [open, setOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [rows, setRows] = useState([]);
 
-  // Modal states
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const [modalData, setModalData] = React.useState("");
-  const [rows, setRows] = React.useState({});
-
-  // Demo data
-  const columns = [
-    { field: "_id", headerName: "ID", width: 300 },
-    { field: "CenterName", headerName: "Center", width: 300 },
-    { field: "Phone", headerName: "Help Line", width: 300 },
-    {
-      field: "Address",
-      headerName: "Address",
-      width: 300,
-      hideable: false,
-      hide: true,
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      sortable: false,
-      renderCell: (params) => {
-        const onClick = (e) => {
-          e.stopPropagation(); // Don't select this row after clicking
-
-          const api = params.api;
-          const thisRow = {};
-
-          api
-            .getAllColumns()
-            .filter((c) => c.field !== "__check__" && !!c)
-            .forEach(
-              (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-            );
-
-          setModalData(thisRow);
-          handleOpen();
-        };
-
-        return (
-          <Button variant="outlined" onClick={onClick} size="small">
-            View More
-          </Button>
-        );
-      },
-    },
-  ];
-
-  function loadData() {
+  const fetchCollectionCenters = () => {
     axios
       .get("collection/getCollectionCenter")
       .then((res) => {
-        setRows(res.data);
+        const dataWithIds = res.data.map((item) => ({
+          ...item,
+          id: item._id,
+        }));
+        setRows(dataWithIds);
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Error fetching collection centers:", err);
       });
-  }
+  };
 
   useEffect(() => {
-    loadData();
+    fetchCollectionCenters();
   }, []);
 
-  return (
-    <Box sx={{ mt: 8 }}>
-      <Container>
-        <Stack
-          container
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: 3 }}
+  const columns = [
+    { field: "_id", headerName: "ID", width: 90, hide: true },
+    { field: "CenterName", headerName: "Center Name", width: 250 },
+    { field: "Phone", headerName: "Phone No.", width: 200 },
+    {
+      field: "action",
+      headerName: "Details",
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={() => {
+            setModalData(params.row);
+            setOpen(true);
+          }}
         >
-          <Typography variant="h5" color="initial">
-            All Collection Centers
-          </Typography>
-        </Stack>
+          View More
+        </Button>
+      ),
+    },
+  ];
 
-        <Box sx={{ height: "80vh", maxHeight: "70vh", width: "90vw" }}>
-          <DataGrid columns={columns} rows={rows} getRowId={(row) => uuid()} />
-        </Box>
-      </Container>
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        🏢 Collection Centers Overview
+      </Typography>
+
+      <Card sx={{ mb: 4, borderRadius: 3, p: 2 }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            Registered Collection Centers
+          </Typography>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            getRowId={(row) => row.id}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 25]}
+            autoHeight
+            sx={{ borderRadius: 2 }}
+          />
+        </CardContent>
+      </Card>
 
       <Modal
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         closeAfterTransition
         BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
+        BackdropProps={{ timeout: 500 }}
       >
         <Fade in={open}>
-          <Box sx={style}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{ mb: 3 }}
-            >
-              <Typography
-                variant="h6"
-                color="primary"
-                sx={{ fontWeight: "600", fontSize: "1rem" }}
-              >
-                Center Details
-              </Typography>
-            </Stack>
-
-            <Grid container alignItems="center" justifyContent="space-between">
-              <Grid item xs={12}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <Box>
-                    <Typography variant="subtitle1" color="initial">
-                      {modalData.CenterName}
-                    </Typography>
-                    <Box sx={{ width: "70%" }}>
-                      <Typography variant="caption" color="secondary">
-                        {modalData.Address}
+          <Box sx={modalStyle}>
+            {modalData && (
+              <>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
+                  {modalData.CenterName} Details
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Stack spacing={1.5}>
+                      <Typography variant="subtitle1">
+                        📞 Phone: <b>+91 {modalData.Phone}</b>
                       </Typography>
-                    </Box>
-                    <Typography variant="caption" color="initial">
-                      +91 {modalData.Phone}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Grid>
-            </Grid>
+                      <Typography variant="subtitle2">
+                        🏠 Address: <b>{modalData.Address}</b>
+                      </Typography>
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </Box>
         </Fade>
       </Modal>
-    </Box>
+    </Container>
   );
 }
 
